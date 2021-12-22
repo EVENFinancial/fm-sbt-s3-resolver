@@ -20,12 +20,12 @@ import java.net.{URI, URL}
 import java.util.Properties
 import java.util.concurrent.ConcurrentHashMap
 import com.amazonaws.ClientConfiguration
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.model._
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3Client, AmazonS3URI}
 import org.apache.ivy.util.url.URLHandler
 import org.apache.ivy.util.{CopyProgressEvent, CopyProgressListener, Message}
-
 import javax.naming.{Context, NamingException}
 import javax.naming.directory.InitialDirContext
 import scala.annotation.tailrec
@@ -113,13 +113,26 @@ final class S3URLHandler extends URLHandler {
     var client: AmazonS3 = amazonS3ClientCache.get(bucket)
 
     if (null == client) {
-      client = AmazonS3Client.builder()
-        .withCredentials(DefaultS3CredentialsProvider.getCredentialsProvider(bucket))
+      var builder = AmazonS3Client.builder()
+        .withCredentials(S3CredentialsProvider.getCredentialsProvider(bucket))
         .withClientConfiguration(getProxyConfiguration)
+        .withPathStyleAccessEnabled(true)
         .withForceGlobalBucketAccessEnabled(true)
-        .withRegion(getRegion(url, bucket))
-        .build()
 
+      // Enables specifying a specific endpoint config (e.g. LocalStack instance for integration tests)
+      val endpointConfig: Option[EndpointConfiguration] = for {
+        serviceEndPoint <- scala.util.Properties.propOrNone("fm.sbt.s3.endpoint.serviceEndpoint")
+        signingRegion <- scala.util.Properties.propOrNone("fm.sbt.s3.endpoint.signingRegion")
+      } yield {
+        new EndpointConfiguration(serviceEndPoint, signingRegion)
+      }
+
+      // Client requires endpoint config OR region
+      builder = endpointConfig
+        .map { builder.withEndpointConfiguration(_) }
+        .getOrElse(builder.withRegion(getRegion(url, bucket)))
+
+      client = builder.build()
       amazonS3ClientCache.put(bucket, client)
 
       Message.info("S3URLHandler - Created S3 Client for bucket: "+bucket+" and region: "+client.getRegionName)

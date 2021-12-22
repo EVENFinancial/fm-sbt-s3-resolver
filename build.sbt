@@ -15,10 +15,7 @@ scalacOptions := Seq(
   "-language:implicitConversions",
   "-feature",
   "-Xlint"
-) ++ (if (scalaVersion.value.startsWith("2.11")) Seq(
-  // Scala 2.11 specific compiler flags
-  "-Ywarn-unused-import"
-) else Nil) ++ (if (scalaVersion.value.startsWith("2.12")) Seq(
+) ++ (if (scalaVersion.value.startsWith("2.12")) Seq(
   // Scala 2.12 specific compiler flags
   // NOTE: These are currently broken on Scala <= 2.12.6 when using Java 9+ (will hopefully be fixed in 2.12.7)
   //"-opt:l:inline",
@@ -36,20 +33,21 @@ scriptedDependencies := Def.taskDyn {
   else Def.task(()).dependsOn(publishLocal)
 }.value
 
-scriptedLaunchOpts ++= Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+scriptedLaunchOpts ++= Seq(
+  "-Xmx1024M",
+  "-Dplugin.version=" + version.value
+)
 
-crossSbtVersions := Vector("0.13.18", "1.1.6")
+crossSbtVersions := Vector("0.13.18", "1.2.8")
+crossScalaVersions := Vector("2.10.7", "2.12.8")
 
 val amazonSDKVersion = "1.12.129"
-val testcontainersScalaVersion = "0.27.0"
 
 libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk-s3" % amazonSDKVersion,
   "com.amazonaws" % "aws-java-sdk-sts" % amazonSDKVersion,
   "org.apache.ivy" % "ivy" % "2.5.0",
-  "org.scalatest" %% "scalatest" % "3.2.10" % Test,
-  "com.dimafeng" %% "testcontainers-scala-scalatest" % testcontainersScalaVersion % Test,
-  "com.dimafeng" %% "testcontainers-scala-localstack-v2" % testcontainersScalaVersion % Test
+  "org.scalatest" %% "scalatest" % "3.2.10" % Test
 )
 
 // Tell the sbt-release plugin to use publishSigned
@@ -103,4 +101,3 @@ pomExtra := (
       <developerConnection>scm:git:git@github.com:tpunder/sbt-s3-resolver.git</developerConnection>
       <url>git@github.com:tpunder/sbt-s3-resolver.git</url>
   </scm>)
-

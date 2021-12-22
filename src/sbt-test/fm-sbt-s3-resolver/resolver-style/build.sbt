@@ -1,6 +1,4 @@
-ThisBuild / resolvers ++= Seq(
-  "Custom Releases" at "s3://maven.custom/releases/"
-)
+resolvers in ThisBuild += "Custom Releases" at "s3://maven.custom/releases/"
 
 lazy val mavenStyle = project
   .in(file("maven-style"))

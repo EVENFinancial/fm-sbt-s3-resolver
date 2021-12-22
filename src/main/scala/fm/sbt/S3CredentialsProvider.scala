@@ -8,7 +8,7 @@ import java.io.{File, FileInputStream, InputStream}
 import java.util.Properties
 import org.apache.ivy.util.Message
 
-object DefaultS3CredentialsProvider {
+object S3CredentialsProvider {
 
   private[this] val DOT_SBT_DIR: File = {
     sys.props.get("sbt.global.base")
@@ -169,7 +169,7 @@ object DefaultS3CredentialsProvider {
     Message.info("S3URLHandler - Looking up AWS Credentials for bucket: "+bucket+" ...")
 
     val credentialsProvider: AWSCredentialsProvider = try {
-      DefaultS3CredentialsProvider.getBucketCredentialsProvider(bucket)
+      S3CredentialsProvider.getBucketCredentialsProvider(bucket)
     } catch {
       case ex: com.amazonaws.AmazonClientException =>
         Message.error("Unable to find AWS Credentials.")
