@@ -4,39 +4,6 @@
 
 This SBT plugin adds support for using Amazon S3 for resolving and publishing using s3:// urls.
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [SBT 1.3 Support](#sbt-13-support)
-- [SBT 1.1 Support](#sbt-11-support)
-- [SBT 1.0 Support](#sbt-10-support)
-- [Examples](#examples)
-  - [Resolving Dependencies via S3](#resolving-dependencies-via-s3)
-  - [Publishing to S3](#publishing-to-s3)
-  - [Valid s3:// URL Formats](#valid-s3-url-formats)
-- [Usage](#usage)
-  - [Add this to your project/plugins.sbt file:](#add-this-to-your-projectpluginssbt-file)
-  - [S3 Credentials](#s3-credentials)
-    - [Bucket Specific Environment Variables](#bucket-specific-environment-variables)
-    - [Bucket Specific Java System Properties](#bucket-specific-java-system-properties)
-    - [Bucket Specific Property Files](#bucket-specific-property-files)
-    - [Environment Variables](#environment-variables)
-    - [Java System Properties](#java-system-properties)
-    - [Property File](#property-file)
-  - [Custom S3 Credentials](#custom-s3-credentials)
-- [IAM Policy Examples](#iam-policy-examples)
-  - [Read/Write Policy (for publishing)](#readwrite-policy-for-publishing)
-  - [Read-Only Policy](#read-only-policy)
-  - [Releases Read-Only, Snapshots Read/Write](#releases-read-only-snapshots-readwrite)
-- [IAM Role Policy Examples](#iam-role-policy-examples)
-- [S3 Server-Side Encryption](#s3-server-side-encryption)
-- [Authors](#authors)
-- [Copyright](#copyright)
-- [License](#license)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 ## SBT 1.3 Support
 
 SBT 1.3 support is available using version `>= 0.19.0`:
