@@ -11,9 +11,13 @@ import sbt.plugins.SbtPlugin
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
+/**
+ * This starts an embedded S3 Server and sets appropriate ScriptedPlugin settings to
+ * use the s3 server for the scripted tests
+ */
 case object S3ScriptedPlugin extends AutoPlugin {
-  override def requires = SbtPlugin
   override def trigger = allRequirements
+  override def requires = SbtPlugin
 
   val TestBucket = "maven.custom"
   val s3ContainerKey = AttributeKey[LocalStackContainer]("fm-s3-container")
@@ -84,32 +88,36 @@ case object S3ScriptedPlugin extends AutoPlugin {
       .withCredentials(container.container.getDefaultCredentialsProvider)
       .build()
 
-
     val newState = state
       .put(s3ContainerKey, container)
       .put(s3ClientKey, client)
       .put(s3EndpointConfig, container.container.getEndpointConfiguration(Service.S3))
       .put(s3CredentialsKey, container.container.getDefaultCredentialsProvider.getCredentials)
 
-    val currentSbtVersion = Project.extract(state).get(scriptedSbt)
+    val currentCrossBuildSbtVersion = Project.extract(state).get(sbtVersion in pluginCrossBuild)
+    val currentScriptedSbtVersion = Project.extract(state).getOpt(scriptedSbt)
+    val currentSbtVersion = Project.extract(state).get(sbtVersion)
     val currentSbtBinaryVersion = Project.extract(state).get(sbtBinaryVersion)
+
     // This triggers onLoad and onUnload "again", so we must persist a single s3 server instance
     // in-between session reloads, so the settingKey values are correct when the onLoad is ran.
     Project
       .extract(newState)
       .appendWithSession(
-        Seq(
-          scriptedLaunchOpts ++= Seq(
-            getServiceEndpoint(newState).map{ "-Dfm.sbt.s3.endpoint.serviceEndpoint=" + _ }.get,
-            getSigningRegion(newState).map{ "-Dfm.sbt.s3.endpoint.signingRegion=" + _ }.get,
-            getAWSAccessKeyId(newState).map{ "-Daws.accessKeyId=" + _ }.get,
-            getAWSSecretKey(newState).map{ "-Daws.secretKey=" + _ }.get
+          Seq(
+            ThisBuild / scriptedLaunchOpts ++= Seq(
+              getServiceEndpoint(newState).map{ "-Dfm.sbt.s3.endpoint.serviceEndpoint=" + _ }.get,
+              getSigningRegion(newState).map{ "-Dfm.sbt.s3.endpoint.signingRegion=" + _ }.get,
+              getAWSAccessKeyId(newState).map{ "-Daws.accessKeyId=" + _ }.get,
+              getAWSSecretKey(newState).map{ "-Daws.secretKey=" + _ }.get
+            ),
+            sbtVersion in pluginCrossBuild := currentCrossBuildSbtVersion,
+            // sbtVersion in pluginCrossBuild
+            //scriptedSbt := currentScriptedSbtVersion,
+            scriptedSbt := currentScriptedSbtVersion.getOrElse(currentCrossBuildSbtVersion),
+            sbtVersion := currentSbtVersion,
+            sbtBinaryVersion := currentSbtBinaryVersion
           ),
-          // These get reset somehow
-          scriptedSbt := currentSbtVersion,
-          sbtVersion := currentSbtVersion,
-          sbtBinaryVersion := currentSbtBinaryVersion,
-        ),
         newState
       )
   }
