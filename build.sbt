@@ -1,14 +1,15 @@
 val amazonSDKVersion = "1.12.129"
 
-ThisBuild / organization := "com.frugalmechanic"
+ThisBuild / organization := "com.evenfinancial"
 ThisBuild / licenses := Seq("Apache License, Version 2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
-ThisBuild / homepage := Some(url("https://github.com/tpunder/sbt-s3-resolver"))
+ThisBuild / homepage := Some(url("https://github.com/EVENFinancial/fm-sbt-s3-resolver"))
 ThisBuild / publishMavenStyle := true
 
 ThisBuild / crossScalaVersions := Vector("2.10.7", "2.12.15")
 ThisBuild / crossSbtVersions := Vector("0.13.18", "1.2.8")
 
 ThisBuild / publishTo := {
+  //val nexus = "https://s01.oss.sonatype.org/"
   val nexus = "https://oss.sonatype.org/"
   if (version.value.trim.endsWith("SNAPSHOT")) {
     Some("snapshots" at nexus + "content/repositories/snapshots")
@@ -64,11 +65,18 @@ ThisBuild / pomExtra := (
       <email>timunderwood@gmail.com</email>
       <url>https://github.com/tpunder</url>
     </developer>
+    <developer>
+      <id>ericpeters</id>
+      <name>Eric Peters</name>
+      <email>eric@peters.org</email>
+      <url>https://github.com/er1c</url>
+    </developer>
+
   </developers>
   <scm>
-      <connection>scm:git:git@github.com:tpunder/sbt-s3-resolver.git</connection>
-      <developerConnection>scm:git:git@github.com:tpunder/sbt-s3-resolver.git</developerConnection>
-      <url>git@github.com:tpunder/sbt-s3-resolver.git</url>
+      <connection>scm:git:git@github.com:EVENFinancial/fm-sbt-s3-resolver.git</connection>
+      <developerConnection>scm:git:git@github.com:EVENFinancial/fm-sbt-s3-resolver.git</developerConnection>
+      <url>git@github.com:EVENFinancial/fm-sbt-s3-resolver.git</url>
   </scm>)
 
 lazy val root = project
