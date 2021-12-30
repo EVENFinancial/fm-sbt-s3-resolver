@@ -13,9 +13,9 @@ jobs:
       matrix:
         include:
           - java: 11
-            scala: 2.12.8
+            scala: 2.12.15
           - java: 8
-            scala: 2.12.8
+            scala: 2.12.15
           - java: 11
             scala: 2.10.7
           - java: 8
