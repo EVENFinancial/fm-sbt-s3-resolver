@@ -95,29 +95,34 @@ case object S3ScriptedPlugin extends AutoPlugin {
       .put(s3CredentialsKey, container.container.getDefaultCredentialsProvider.getCredentials)
 
     val currentCrossBuildSbtVersion = Project.extract(state).get(sbtVersion in pluginCrossBuild)
-    val currentScriptedSbtVersion = Project.extract(state).getOpt(scriptedSbt)
-    val currentSbtVersion = Project.extract(state).get(sbtVersion)
-    val currentSbtBinaryVersion = Project.extract(state).get(sbtBinaryVersion)
+//    val currentScriptedSbtVersion = Project.extract(state).getOpt(scriptedSbt)
+//    val currentSbtVersion = Project.extract(state).get(sbtVersion)
+//    val currentSbtBinaryVersion = Project.extract(state).get(sbtBinaryVersion)
 
     // This triggers onLoad and onUnload "again", so we must persist a single s3 server instance
     // in-between session reloads, so the settingKey values are correct when the onLoad is ran.
     Project
       .extract(newState)
       .appendWithSession(
-          Seq(
-            ThisBuild / scriptedLaunchOpts ++= Seq(
-              getServiceEndpoint(newState).map{ "-Dfm.sbt.s3.endpoint.serviceEndpoint=" + _ }.get,
-              getSigningRegion(newState).map{ "-Dfm.sbt.s3.endpoint.signingRegion=" + _ }.get,
-              getAWSAccessKeyId(newState).map{ "-Daws.accessKeyId=" + _ }.get,
-              getAWSSecretKey(newState).map{ "-Daws.secretKey=" + _ }.get
-            ),
-            sbtVersion in pluginCrossBuild := currentCrossBuildSbtVersion,
-            // sbtVersion in pluginCrossBuild
-            //scriptedSbt := currentScriptedSbtVersion,
-            scriptedSbt := currentScriptedSbtVersion.getOrElse(currentCrossBuildSbtVersion),
-            sbtVersion := currentSbtVersion,
-            sbtBinaryVersion := currentSbtBinaryVersion
+        Seq(
+          ThisBuild / scriptedLaunchOpts ++= Seq(
+            getServiceEndpoint(newState).map{ "-Dfm.sbt.s3.endpoint.serviceEndpoint=" + _ }.get,
+            getSigningRegion(newState).map{ "-Dfm.sbt.s3.endpoint.signingRegion=" + _ }.get,
+            getAWSAccessKeyId(newState).map{ "-Daws.accessKeyId=" + _ }.get,
+            getAWSSecretKey(newState).map{ "-Daws.secretKey=" + _ }.get
           ),
+          //ThisBuild / scriptedSbt := currentCrossBuildSbtVersion,
+//          ThisBuild / pluginCrossBuild / sbtVersion := {
+//            scalaBinaryVersion.value match {
+//              case "2.10" => "0.13.18"
+//              case "2.12" => "1.2.8"
+//            }
+//          },
+          ThisBuild / sbtVersion in pluginCrossBuild := currentCrossBuildSbtVersion,
+          //scriptedSbt := currentScriptedSbtVersion,
+          //ThisBuild / sbtVersion := currentCrossBuildSbtVersion,
+          //sbtBinaryVersion := currentSbtBinaryVersion
+        ),// ++ currentScriptedSbtVersion.toSeq.map{ scriptedSbt := _ },
         newState
       )
   }
@@ -142,7 +147,7 @@ case object S3ScriptedPlugin extends AutoPlugin {
         client.deleteBucket(bucketName)
       }
       client.createBucket(TestBucket)
-      val bucketPath = "scripted/test/s3/"+TestBucket
+      val bucketPath = "test/s3/"+TestBucket
       val finder: PathFinder = file(bucketPath) ** "*.*"
       finder.get.filter{ _.isFile }.foreach { f: File =>
         val path = f.getAbsolutePath

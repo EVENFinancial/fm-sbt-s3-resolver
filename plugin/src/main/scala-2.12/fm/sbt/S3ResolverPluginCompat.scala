@@ -13,10 +13,10 @@ object S3ResolverPluginCompat {
     /** This provides a shim for pre-sbt 1.3.x+ tests */
     private[S3ResolverPluginCompat] lazy val sbtShimCsrResolvers: TaskKey[Seq[Resolver]] =             TaskKey[Seq[Resolver]]("sbtShimCsrResolvers", "Provide a sbt shim for pre-coursier versions")
     private[S3ResolverPluginCompat] lazy val sbtShimCsrSbtResolvers: TaskKey[Seq[Resolver]] =          TaskKey[Seq[Resolver]]("sbtShimCsrSbtResolvers", "Provide a sbt shim for pre-coursier versions")
-    private[S3ResolverPluginCompat] lazy val sbtShimSbtResolvers: SettingKey[Seq[Resolver]] =          SettingKey[Seq[Resolver]]("sbtShimSbtResolvers", "Provide a sbt shim for pre-coursier versions")
-    private[S3ResolverPluginCompat] lazy val sbtShimUseCoursier: SettingKey[Boolean] =                 SettingKey[Boolean]("sbtShimUseCoursier", "Provide a sbt shim for pre-coursier versions")
+    private[S3ResolverPluginCompat] lazy val sbtShimSbtResolvers: SettingKey[Seq[Resolver]] =          SettingKey[Seq[Resolver]]("sbtShimSbtResolvers", "Provide a sbt shim for pre-coursier versions")(implicitly, sbt.util.NoJsonWriter())
+    private[S3ResolverPluginCompat] lazy val sbtShimUseCoursier: SettingKey[Boolean] =                 SettingKey[Boolean]("sbtShimUseCoursier", "Provide a sbt shim for pre-coursier versions")(implicitly, sbt.util.NoJsonWriter())
     private[S3ResolverPluginCompat] lazy val sbtShimCsrConfiguration: TaskKey[CoursierConfiguration] = TaskKey[CoursierConfiguration]("sbtCsrConfiguration", "Provide a sbt shim for pre-coursier versions")
-    private[S3ResolverPluginCompat] lazy val sbtShimCsrCacheDirectory: SettingKey[File] =              SettingKey[File]("sbtShimCsrCacheDirectory", "Provide a sbt shim for pre-coursier versions")
+    private[S3ResolverPluginCompat] lazy val sbtShimCsrCacheDirectory: SettingKey[File] =              SettingKey[File]("sbtShimCsrCacheDirectory", "Provide a sbt shim for pre-coursier versions")(implicitly, sbt.util.NoJsonWriter())
 
     lazy val csrResolvers: TaskKey[Seq[Resolver]] = loadIfExists(
       fullyQualifiedName = "sbt.Keys.csrResolvers",
@@ -163,6 +163,10 @@ trait S3ResolverPluginCompat {
   val Logger = _root_.sbt.util.Logger
   val Using = _root_.sbt.io.Using
 
+  // Use this to set the appropriate S3 Handler dependency
+  protected def s3PluginVersion: String
+  protected def s3PluginGroupId: String
+
   import S3ResolverPluginCompat.Keys._
 
   protected def compatProjectSettings: Seq[Setting[_]] = Seq(
@@ -211,8 +215,7 @@ trait S3ResolverPluginCompat {
     csrConfiguration := Def.taskDyn {
       val v =
         if (sbtHasCoursierProtocolHandlerDependencies(_root_.sbt.Keys.sbtVersion.value)) {
-          val s3PluginVersion = "0.21.0-SNAPSHOT" // TODO: How can this be non hard coded?
-          val s3Plugin = Defaults.sbtPluginExtra("com.frugalmechanic" % "fm-sbt-s3-resolver-coursier-handler" % s3PluginVersion, "1.0", "2.12")
+          val s3Plugin = s3PluginGroupId %% "fm-sbt-s3-resolver-coursier-handler" % s3PluginVersion
           csrConfiguration.value.withProtocolHandlerDependencies(Seq(s3Plugin))
         } else {
           sbtShimCsrConfiguration.value
@@ -225,7 +228,7 @@ trait S3ResolverPluginCompat {
     csrCacheDirectory := {
       if (sbtHasCoursier(_root_.sbt.Keys.sbtVersion.value)) csrCacheDirectory.value
       else sbtShimCsrCacheDirectory.value
-    },
+    }
   )
 
   private def sbtHasCoursier(sbtVersion: String): Boolean = CrossVersion.partialVersion(sbtVersion) match {

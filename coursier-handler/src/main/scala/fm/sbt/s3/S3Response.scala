@@ -64,6 +64,7 @@ private[s3] case class GETListHTMLResponse(path: String, obj: ObjectListing) ext
     obj
       .getObjectSummaries
       .asScala
+      .toSeq
       .map { summary =>
         val key = summary.getKey
         assert(key.startsWith(path))
