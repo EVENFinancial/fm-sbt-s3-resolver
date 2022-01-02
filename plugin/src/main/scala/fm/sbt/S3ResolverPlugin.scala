@@ -43,6 +43,9 @@ object S3ResolverPlugin extends AutoPlugin with S3ResolverPluginCompat {
   // This plugin will load automatically
   override def trigger: PluginTrigger = allRequirements
 
+  override protected def s3PluginVersion: String = BuildInfo.version
+  override protected def s3PluginGroupId: String = BuildInfo.organization
+
   override def projectSettings: Seq[Setting[_]] = compatProjectSettings ++ Seq(
     s3CredentialsProvider := S3CredentialsProvider.defaultCredentialsProviderChain,
     showS3Credentials := {
