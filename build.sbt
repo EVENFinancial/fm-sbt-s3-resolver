@@ -42,16 +42,28 @@ ThisBuild / scalacOptions in (Compile, doc) ++= {
     "-doc-source-url", s"https://github.com/EVENFinancial/fm-sbt-s3-resolver/tree/${hash()}€{FILE_PATH}.scala"
   )
 }
+credentials += Credentials(
+  "GnuPG Key ID",
+  "gpg",
+  "1A8A44B8A46105458F82E5E75371E10F16D36BD4", // key identifier
+  "ignored" // this field is ignored; passwords are supplied by pinentry
+)
 
 //ThisBuild / publishTo := {
-//  //val nexus = "https://s01.oss.sonatype.org/"
-//  val nexus = "https://oss.sonatype.org/"
+//  val nexus = "https://s01.oss.sonatype.org/"
+//  //val nexus = "https://oss.sonatype.org/"
 //  if (version.value.trim.endsWith("SNAPSHOT")) {
 //    Some("snapshots" at nexus + "content/repositories/snapshots")
 //  } else {
 //    Some("releases" at nexus + "service/local/staging/deploy/maven2")
 //  }
 //}
+
+ThisBuild / publishTo := {
+  val nexus = "https://s01.oss.sonatype.org/"
+  if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+  else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+}
 
 ThisBuild / Test / publishArtifact := false
 ThisBuild / pomIncludeRepository := { _ => false }

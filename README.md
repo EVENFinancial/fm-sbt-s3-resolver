@@ -1,6 +1,10 @@
-# Frugal Mechanic SBT S3 Resolver
+# EVEN Financial SBT S3 Resolver
 
-[![Build Status](https://app.travis-ci.com/tpunder/fm-sbt-s3-resolver.svg?branch=master)](https://app.travis-ci.com/github/tpunder/fm-sbt-s3-resolver)
+This is a fork of the [fm-sbt-s3-resolver](https://github.com/frugalmechanic/fm-sbt-s3-resolver) with additional coursier support, including Scala Steward.
+
+It is published to maven under group id `com.evenfinancial`, instead of `com.frugalmechanic`.  Current WIP snapshot is `0.21.0-SNAPSHOT`.
+
+[![CI](https://github.com/EVENFinancial/fm-sbt-s3-resolver/actions/workflows/ci.yml/badge.svg)](https://github.com/EVENFinancial/fm-sbt-s3-resolver/actions/workflows/ci.yml)
 
 This SBT plugin adds support for using Amazon S3 for resolving and publishing using s3:// urls.
 
