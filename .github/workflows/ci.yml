@@ -20,12 +20,11 @@ jobs:
       JVM_OPTS:    -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
       DOCKER_HOST: unix:///var/run/docker.sock
     steps:
-      - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v10
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+      - uses: olafurpg/setup-scala@ec8caf122da82cba888a98a82ec3675162b6f1fb
         with:
           java-version: "adopt@1.${{ matrix.java }}"
-      - uses: coursier/cache-action@v5
-#      - env:
+      - uses: coursier/cache-action@b74a57cd5434385877191a348c5f9929f064fda5
 #          AWS_ACCESS_KEY_ID: ${secrets.AWS_ACCESS_KEY_ID}
 #          AWS_SECRET_KEY: ${secrets.AWS_SECRET_KEY}
 #        shell: bash
