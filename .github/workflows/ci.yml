@@ -20,11 +20,18 @@ jobs:
       JVM_OPTS:    -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
       DOCKER_HOST: unix:///var/run/docker.sock
     steps:
-      - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v10
+      - uses: actions/checkout@v6
+      - uses: olafurpg/setup-scala@ec8caf122da82cba888a98a82ec3675162b6f1fb # v10
         with:
           java-version: "adopt@1.${{ matrix.java }}"
-      - uses: coursier/cache-action@v5
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.sbt
+            ~/.ivy2/cache
+          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt', 'project/**/*.scala', 'project/*.sbt', 'project/build.properties') }}
+          restore-keys: ${{ runner.os }}-sbt-
 #      - env:
 #          AWS_ACCESS_KEY_ID: ${secrets.AWS_ACCESS_KEY_ID}
 #          AWS_SECRET_KEY: ${secrets.AWS_SECRET_KEY}
